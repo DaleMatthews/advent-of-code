@@ -4,5 +4,8 @@ init:
 		touch $$folder/example1.txt; \
 	done
 
-day-%:
+day%:
 	go test ./day$* -v
+
+bench%:
+	go test -bench=. ./day$* -benchmem

@@ -29,3 +29,11 @@ func TestSolvePuzzle2(t *testing.T) {
 	result := day01.SolvePuzzle2(input)
 	utils.LogResult(t, result)
 }
+
+func BenchmarkSolvePuzzle2(b *testing.B) {
+	input := utils.ReadInput(nil, "input1.txt") // might need adjustment
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		day01.SolvePuzzle2(input)
+	}
+}

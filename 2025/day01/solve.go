@@ -2,7 +2,7 @@ package day01
 
 func SolvePuzzle1(input string) int {
 	// TODO: solve puzzle 1
-	return 0
+	return 1
 }
 
 func SolvePuzzle2(input string) int {

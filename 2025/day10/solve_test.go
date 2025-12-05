@@ -6,9 +6,21 @@ import (
 	"testing"
 )
 
+func TestSolveExample1(t *testing.T) {
+	input := utils.ReadInput(t, "example1.txt")
+	result := day10.SolvePuzzle1(input)
+	utils.LogResult(t, result)
+}
+
 func TestSolvePuzzle1(t *testing.T) {
 	input := utils.ReadInput(t, "input1.txt")
 	result := day10.SolvePuzzle1(input)
+	utils.LogResult(t, result)
+}
+
+func TestSolveExample2(t *testing.T) {
+	input := utils.ReadInput(t, "example1.txt")
+	result := day10.SolvePuzzle2(input)
 	utils.LogResult(t, result)
 }
 

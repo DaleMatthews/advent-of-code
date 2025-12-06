@@ -9,7 +9,11 @@ import (
 	"testing"
 )
 
-func ReadInput(t *testing.T, filename string) string {
+func ReadInput(t *testing.T, filename string, options ...bool) string {
+	trim := true
+	if len(options) > 0 {
+		trim = options[0]
+	}
 	_, file, _, ok := runtime.Caller(1)
 	if !ok {
 		t.Fatal("Failed to get caller information. Can't determine which day to load.")
@@ -21,5 +25,8 @@ func ReadInput(t *testing.T, filename string) string {
 		t.Fatal("Input file not found. Make sure to run `make init` to complete the one-time setup.")
 	}
 
-	return string(bytes.TrimSpace(content))
+	if trim {
+		return string(bytes.TrimSpace(content))
+	}
+	return string(content)
 }

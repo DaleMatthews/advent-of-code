@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 )
 
@@ -28,5 +29,6 @@ func ReadInput(t *testing.T, filename string, options ...bool) string {
 	if trim {
 		return string(bytes.TrimSpace(content))
 	}
-	return string(content)
+	return strings.ReplaceAll(string(content), "\r\n", "\n")
+	// return string(content)
 }

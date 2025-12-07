@@ -49,7 +49,7 @@ func parseInput1(input string) ([][]int, []string) {
 }
 
 func parseInput2(input string) ([][]int, []string) {
-	lines := strings.Split(input, "\r\n")
+	lines := strings.Split(input, "\n")
 	lines = lines[:len(lines)-1] // remove empty line
 	board := make([][]string, len(lines))
 	for i, line := range lines {

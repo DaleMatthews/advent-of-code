@@ -8,13 +8,13 @@ import (
 
 func TestSolveExample1(t *testing.T) {
 	input := utils.ReadInput(t, "example1.txt")
-	result := day08.SolvePuzzle1(input)
+	result := day08.SolvePuzzle1(input, 10)
 	utils.LogResult(t, result)
 }
 
 func TestSolvePuzzle1(t *testing.T) {
 	input := utils.ReadInput(t, "input1.txt")
-	result := day08.SolvePuzzle1(input)
+	result := day08.SolvePuzzle1(input, 1000)
 	utils.LogResult(t, result)
 }
 

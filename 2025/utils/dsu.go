@@ -22,16 +22,18 @@ func (d *DSU) Find(x int) int {
 	return d.parent[x]
 }
 
-func (d *DSU) Union(x, y int) {
+// returns new parent
+func (d *DSU) Union(x, y int) int {
 	px, py := d.Find(x), d.Find(y)
 	if px == py {
-		return
+		return px
 	}
 	if d.size[px] < d.size[py] {
 		px, py = py, px // keeps tree shallow
 	}
 	d.parent[py] = px
 	d.size[px] += d.size[py]
+	return px
 }
 
 func (d *DSU) Size(x int) int {

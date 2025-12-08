@@ -30,7 +30,18 @@ func SolvePuzzle1(input string, maxConnectionChecks int) int {
 
 func SolvePuzzle2(input string) int {
 	coords := parseInput(input)
-	return len(coords)
+	edges := getEdges(coords)
+	dsu := utils.NewDSU(len(coords))
+	i := 0
+	for ; i < len(edges); i++ {
+		e := &edges[i]
+		parent := dsu.Union(e.c1, e.c2)
+		if dsu.Size(parent) == len(coords) {
+			break
+		}
+	}
+	c1, c2 := edges[i].c1, edges[i].c2
+	return coords[c1].X * coords[c2].X
 }
 
 func parseInput(input string) []utils.Coord3D {
@@ -39,19 +50,20 @@ func parseInput(input string) []utils.Coord3D {
 
 	for i, line := range lines {
 		nums := strings.Split(strings.TrimSpace(line), ",")
-		x, _ := strconv.Atoi(nums[0])
-		y, _ := strconv.Atoi(nums[1])
-		z, _ := strconv.Atoi(nums[2])
-		coords[i] = utils.New3DCoord(x, y, z)
+		X, _ := strconv.Atoi(nums[0])
+		Y, _ := strconv.Atoi(nums[1])
+		Z, _ := strconv.Atoi(nums[2])
+		coords[i] = utils.Coord3D{X: X, Y: Y, Z: Z}
 	}
 	return coords
 }
 
 func getEdges(coords []utils.Coord3D) []Edge {
-	edges := make([]Edge, 0)
+	n := len(coords)
+	edges := make([]Edge, 0, n*(n-1)/2)
 	for i := 0; i < len(coords); i++ {
 		for j := i + 1; j < len(coords); j++ {
-			dist := utils.Dist3D(coords[i], coords[j])
+			dist := coords[i].Dist(coords[j])
 			edges = append(edges, Edge{i, j, dist})
 		}
 	}

@@ -5,12 +5,12 @@ import (
 	"os"
 	"time"
 
-	"spissable/advent-of-go-template/day07"
+	"spissable/advent-of-go-template/day09"
 )
 
 func main() {
 	// Read input file
-	data, err := os.ReadFile("day07/input1.txt")
+	data, err := os.ReadFile("day09/input1.txt")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
 		os.Exit(1)
@@ -20,7 +20,7 @@ func main() {
 
 	// Run and time SolvePuzzle2
 	start := time.Now()
-	result := day07.SolvePuzzle2(input)
+	result := day09.SolvePuzzle2(input)
 	elapsed := time.Since(start)
 
 	fmt.Printf("Result: %d\n", result)

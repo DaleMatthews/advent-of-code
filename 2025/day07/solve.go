@@ -35,15 +35,15 @@ func SolvePuzzle1(input string) int {
 
 func SolvePuzzle2(input string) int {
 	lines, start := parseInput(input)
-	cache := make(map[utils.Coord]int)
+	cache := make(map[utils.Coord2D]int)
 	return 1 + getNumNewTimelines(lines, 0, start, cache)
 }
 
-func getNumNewTimelines(lines []string, i int, beam int, cache map[utils.Coord]int) int {
+func getNumNewTimelines(lines []string, i int, beam int, cache map[utils.Coord2D]int) int {
 	if i >= len(lines) {
 		return 0
 	}
-	key := utils.NewCoord(i, beam)
+	key := utils.Coord2D{X: i, Y: beam}
 	if val, exists := cache[key]; exists {
 		return val
 	}

@@ -8,3 +8,8 @@ Uses template from https://github.com/Spissable/advent-of-go-template
 1. Solve a specific day by copying your personal input file into the respective `input.txt` of the day's directory and implement the `SolvePuzzle1` / `SolvePuzzle2`.
 1. Run the specific day via `make day-<day_number>` or run the test file via your favourite IDE (make sure to use verbose mode).
 1. Validate the printed results on the [Advent of Code website](https://adventofcode.com/).
+
+Run fast:
+```sh
+go build -ldflags="-s -w" -o main main.go && ./main
+```

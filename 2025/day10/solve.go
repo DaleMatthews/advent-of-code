@@ -1,6 +1,9 @@
 package day10
 
 import (
+	"fmt"
+	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 )
@@ -99,122 +102,96 @@ func SolvePuzzle2(input string) int {
 	machineButtons, voltages := parseInput2(input)
 	sum := 0
 	for i := 0; i < len(voltages); i++ {
-		numPresses := AStarPart2(make([]int, len(voltages[i])), voltages[i], machineButtons[i])
+		numPresses := getMinPresses2(voltages[i], machineButtons[i])
 		println(numPresses)
 		sum += numPresses
 	}
 	return sum
 }
 
-type State struct {
-	voltages     []int
-	validButtons [][]int
-	depth        int
-	h            int
-}
+func getMinPresses2(target []int, buttons [][]int) int {
+	numButtons := len(buttons)
+	numIndices := len(target)
 
-func AStarPart2(initial []int, target []int, machineButtons [][]int) int {
-
-	initialH := heuristic(&initial, &target)
-	queue := []State{{
-		voltages:     initial,
-		validButtons: machineButtons,
-		depth:        0,
-		h:            initialH,
-	}}
-
-	visited := make(map[string]bool)
-	visited[toKey(&initial)] = true
-
-	for len(queue) > 0 {
-		// Find state with lowest f = depth + h
-		bestIdx := 0
-		bestF := queue[0].depth + queue[0].h
-		for i := 1; i < len(queue); i++ {
-			f := queue[i].depth + queue[i].h
-			if f < bestF {
-				bestF = f
-				bestIdx = i
-			}
-		}
-
-		current := queue[bestIdx]
-		queue = append(queue[:bestIdx], queue[bestIdx+1:]...)
-
-		if isEqual(current.voltages, target) {
-			return current.depth
-		}
-
-		for _, button := range current.validButtons {
-			newVoltages := increaseVoltages(current.voltages, button)
-			key := toKey(&newVoltages)
-
-			if !visited[key] {
-				visited[key] = true
-				validButtons := filterValidButtons(&newVoltages, &target, &current.validButtons)
-				queue = append(queue, State{
-					voltages:     newVoltages,
-					validButtons: validButtons,
-					depth:        current.depth + 1,
-					h:            heuristic(&newVoltages, &target),
-				})
-			}
+	// Build coefficient matrix
+	coeff := make([][]int, numIndices)
+	for i := range coeff {
+		coeff[i] = make([]int, numButtons)
+	}
+	for j, button := range buttons {
+		for _, idx := range button {
+			coeff[idx][j]++
 		}
 	}
+
+	// Write GMPL/MathProg file
+	var sb strings.Builder
+	for j := 0; j < numButtons; j++ {
+		fmt.Fprintf(&sb, "var x%d, integer, >= 0;\n", j)
+	}
+	sb.WriteString("\n")
+
+	sb.WriteString("minimize total: ")
+	for j := 0; j < numButtons; j++ {
+		if j > 0 {
+			sb.WriteString(" + ")
+		}
+		fmt.Fprintf(&sb, "x%d", j)
+	}
+	sb.WriteString(";\n\n")
+
+	for i := 0; i < numIndices; i++ {
+		fmt.Fprintf(&sb, "s.t. c%d: ", i)
+		first := true
+		for j := 0; j < numButtons; j++ {
+			if coeff[i][j] > 0 {
+				if !first {
+					sb.WriteString(" + ")
+				}
+				if coeff[i][j] == 1 {
+					fmt.Fprintf(&sb, "x%d", j)
+				} else {
+					fmt.Fprintf(&sb, "%d*x%d", coeff[i][j], j)
+				}
+				first = true
+				first = false
+			}
+		}
+		fmt.Fprintf(&sb, " = %d;\n", target[i])
+	}
+
+	sb.WriteString("\nsolve;\n\n")
+	sb.WriteString("printf \"RESULT: %d\\n\", ")
+	for j := 0; j < numButtons; j++ {
+		if j > 0 {
+			sb.WriteString(" + ")
+		}
+		fmt.Fprintf(&sb, "x%d", j)
+	}
+	sb.WriteString(";\n\nend;\n")
+
+	// Write to temp file
+	f, _ := os.CreateTemp("", "problem*.mod")
+	f.WriteString(sb.String())
+	f.Close()
+
+	// Run GLPK
+	out, err := exec.Command("glpsol.exe", "--math", f.Name()).Output()
+	os.Remove(f.Name())
+
+	if err != nil {
+		return -1
+	}
+
+	// Parse result
+	for _, line := range strings.Split(string(out), "\n") {
+		if strings.HasPrefix(line, "RESULT: ") {
+			val, _ := strconv.Atoi(strings.TrimSpace(strings.TrimPrefix(line, "RESULT: ")))
+			return val
+		}
+	}
+
 	return -1
-}
-
-func heuristic(voltages, target *[]int) int {
-	return sum(target) - sum(voltages)
-}
-
-func filterValidButtons(voltages, target *[]int, buttons *[][]int) [][]int {
-	newButtons := make([][]int, 0, len(*buttons))
-	for _, b := range *buttons {
-		valid := true
-		for _, i := range b {
-			if (*voltages)[i] >= (*target)[i] {
-				valid = false
-				break
-			}
-		}
-		if valid {
-			newButtons = append(newButtons, b)
-		}
-	}
-	return newButtons
-}
-
-func isEqual(a []int, b []int) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
-func toKey(state *[]int) string {
-	b := strings.Builder{}
-	for i, v := range *state {
-		if i > 0 {
-			b.WriteByte(',')
-		}
-		b.WriteString(strconv.Itoa(v))
-	}
-	return b.String()
-}
-
-func increaseVoltages(state []int, button []int) []int {
-	newState := make([]int, len(state))
-	copy(newState, state)
-	for _, pos := range button {
-		newState[pos]++
-	}
-	return newState
 }
 
 func parseInput2(input string) ([][][]int, [][]int) {
@@ -252,12 +229,4 @@ func parseInput2(input string) ([][][]int, [][]int) {
 		}
 	}
 	return buttons, voltages
-}
-
-func sum(arr *[]int) int {
-	sum := 0
-	for _, elem := range *arr {
-		sum += elem
-	}
-	return sum
 }

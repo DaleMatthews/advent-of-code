@@ -1,6 +1,8 @@
 package day11
 
-import "strings"
+import (
+	"strings"
+)
 
 type Device struct {
 	key     string
@@ -17,8 +19,39 @@ func SolvePuzzle1(input string) int {
 }
 
 func SolvePuzzle2(input string) int {
-	devices, _ := parseInput(input)
-	return len(devices)
+	_, m := parseInput(input)
+	return findPaths(m["svr"], false, false, make(map[cacheKey]int))
+}
+
+type cacheKey struct {
+	node    *Device
+	seenFFT bool
+	seenDAC bool
+}
+
+func findPaths(d *Device, seenFFT, seenDAC bool, cache map[cacheKey]int) int {
+	seenFFT = seenFFT || d.key == "fft"
+	seenDAC = seenDAC || d.key == "dac"
+
+	key := cacheKey{d, seenFFT, seenDAC}
+	if v, ok := cache[key]; ok {
+		return v
+	}
+
+	if len(d.outputs) == 0 {
+		if seenFFT && seenDAC {
+			return 1
+		}
+		return 0
+	}
+
+	count := 0
+	for _, child := range d.outputs {
+		count += findPaths(child, seenFFT, seenDAC, cache)
+	}
+
+	cache[key] = count
+	return count
 }
 
 func parseInput(input string) ([]*Device, map[string]*Device) {

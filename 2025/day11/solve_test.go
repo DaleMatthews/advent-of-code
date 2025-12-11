@@ -19,7 +19,7 @@ func TestSolvePuzzle1(t *testing.T) {
 }
 
 func TestSolveExample2(t *testing.T) {
-	input := utils.ReadInput(t, "example1.txt")
+	input := utils.ReadInput(t, "example2.txt")
 	result := day11.SolvePuzzle2(input)
 	utils.LogResult(t, result)
 }
